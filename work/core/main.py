@@ -34,8 +34,6 @@ class ArvgHandler(object):
                 print('%s host group %s [%s]'%(num,num,len(groups[key])))
                 groups_dict[str(num)] = key
                 num+=1
-
-
             while True:
                 flog_1 = input('#>')
                 if flog_1 in groups_dict.keys():
@@ -48,32 +46,23 @@ class ArvgHandler(object):
                     '''%''.join(['%s : %s\n'%(i.name,i.get('IPADDR')) for i in hosts])
                     print(flogs.lstrip())
                     q = queue.Queue()
-
-
                 while True:
                     [q.put(i, block=False,timeout=0.1) for i in hosts]
                     flog_2 = input('#>')
                     global ssh_client
-                    if flog_2 == '1':
-                        count = q.qsize()
-                        t_objs = []
-
-                        for i in range(count):
-                            ssh = ssh_client.SSH_link(q.get)
-                            threads = threading.Thread(target=ssh.SSH_Execute,args=('df',))
-                            threads.start()
-                            t_objs.append(threads)
+                    t_objs=[]
+                    commond=''
+                    if flog_2 =='1':
+                        commond = 'df'
+                    elif flog_2 == '2':
+                        commond = 'cp /tmp/test.py /opt/'
+                    while q.qsize()>0 and flog_2:
+                        ssh = ssh_client.SSH_link(q.get())
+                        threads = threading.Thread(target=ssh.SSH_Execute, args=(commond,))
+                        threads.start()
+                        t_objs.append(threads)
+                    else:
                         for t in t_objs:
-                            t.join()
-                    if flog_2 == '2':
-                        count = q.qsize()
-                        t_objs =[]
-                        for i in range(count):
-                            ssh = ssh_client.SSH_link(q.get())
-                            threads = threading.Thread(target=ssh.SSH_Execute,args=('cp /tmp/test.py /opt/',))
-                            threads.start()
-                            t_objs.append(threads)
-                        for  t in t_objs:
                             t.join()
     def group_list(self):
         config_file_dirs = setting.collect_cfg()  #获取存放服务器信息的地址列表

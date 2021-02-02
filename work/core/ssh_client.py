@@ -1,7 +1,7 @@
 #__author__:"jcm"
 import paramiko
 import configparser
-
+#ssh paramiko 连接
 class SSH_link(object):
     def __init__(self,host_config):
         self.title = host_config.name
